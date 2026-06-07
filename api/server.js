@@ -13,15 +13,27 @@ app.get('/api/coffes', (req, res) => {
 
 // Endpoint 02: Rota vulnerável simulada
 // Simula uma busca insegura onde o ID é injetado direto
+// Somente DAST reportaria essa rota
 app.get('/api/users/search', (req, res) => {
   const query = req.query.q;
   // Apenas simulação de retorno
   res.send(`Searching for user: ${query}`);
 });
 
+
 // Endpoint 03: Rota de criação (POST)
 app.post('/api/feedback', (req, res) => {
   res.status(201).json({ status: 'success', message: 'Feedback received' });
+});
+
+// Endpoint 4: Expõe dados sensíveis/configurações do sistema (Insecure Endpoint)
+// Endpoint para o SAST pegar
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    status: "debug_mode",
+    db_password: "admin_master_password_123", // Credencial exposta
+    internal_version: "1.0.0-beta"
+  });
 });
 
 const PORT = 5000;
