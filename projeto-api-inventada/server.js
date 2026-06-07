@@ -36,6 +36,11 @@ app.get('/api/debug/env', (req, res) => {
   });
 });
 
+app.get('/api/v1/redirect', (req, res) => {
+  const targetUrl = req.query.url;
+  res.redirect(targetUrl); // Falha de Open Redirect
+});
+
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Backend de testes rodando na porta ${PORT}`);
