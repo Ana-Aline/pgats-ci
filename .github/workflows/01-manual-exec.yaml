@@ -22,7 +22,7 @@ jobs:
             id: noir
             uses: owasp-noir/noir@v1.0.0
             with:
-              base_path: '.'
+              base_path: 'api'
               format: 'json' #formato da saída
               output_file: 'noir-results.json'
               passive_scan: 'true' #habilitei o scan nativo

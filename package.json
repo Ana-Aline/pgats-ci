@@ -15,6 +15,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:mutation": "npx stryker run",
     "start": "lite-server",
+    "start-backend": "node api/server.js",
     "e2e": "npx playwright test"
   },
   "keywords": [],
@@ -33,5 +34,8 @@
     "prettier": "^3.2.4",
     "typescript": "^5.3.3",
     "whatwg-fetch": "^3.6.20"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
