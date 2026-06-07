@@ -1,7 +1,7 @@
 # CI de Nível 01 - Disparo Manual através de clique
 
 # nome da pipeline
-name: "Execução Manual"
+name: "Execução Manual com OWASP Noir"
 
 # gatilhos / triggers - regras de disparo
 # gatilho manual = workflow_dispatch
@@ -12,33 +12,56 @@ on:
 #tarefas dentro da pipeline = jobs
 
 jobs:
-    #nome do job
-    e2e-tests:
-        # maquina onde o job vai rodar
+    manual-security-e2e-tests:
         runs-on: ubuntu-latest
-
-        # passos do job
         steps:
-            # clone do projeto
-            - uses: actions/checkout@v4
+          - name: Clone do projeto
+            uses: actions/checkout@v4
 
-            # instalção do node
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 24.x
+          - name: Executar o OWASP Noir com scanner estatico
+            id: noir
+            uses: owasp-noir/noir@v1.0.0
+            with:
+              base_path: 'src'
+              format: 'json' #formato da saída
+              output: 'noir-results.json'
+              passive_scan: 'true' #habilitei o scan nativo
+              passive_scan_severity: 'medium' # reporta os casos médios, altas e criticas
+              use_all_taggers: 'true' #cobrir tudo/pente fino
+              include_path: 'true'
+              verbose: 'true'
 
-            # instalação do Yarn
-            - name: Instalando Yarn
-              run: npm install -g yarn
+          - name: Processar Resultados do Scanner
+            run: |
+                echo "Endpoints descobertos:"
+                echo '${{ steps.noir.outputs.endpoints }}' | jq '.endpoints | length'
+
+                echo "Problemas de segurança encontrados:"
+                echo '${{ steps.noir.outputs.passive_results }}' | jq '. | length'
+
+          - name: Salvar relatório
+            uses: actions/upload-artifact@v4
+            with:
+              name: security-analysis-results
+              path: noir-results.json
+                
+          - name: instalção do node
+            uses: actions/setup-node@v4
+            with:
+              node-version: 24.x
+
+         # instalação do Yarn
+          - name: Instalando Yarn
+            run: npm install -g yarn
             
             #   instalação das dependências
-            - name: Instalando dependências
-              run: yarn
+          - name: Instalando dependências
+            run: yarn
             
             # instalação dos Browsers do Playwright
-            - name: Instalando Browsers do Playwright
-              run: yarn playwright install
+          - name: Instalando Browsers do Playwright
+            run: yarn playwright install
             
             # executar os testes e2e
-            - name: Executando testes e2e
-              run: yarn run e2e
+          - name: Executando testes e2e
+            run: yarn run e2e
